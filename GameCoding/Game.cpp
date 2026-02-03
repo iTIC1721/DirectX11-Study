@@ -25,14 +25,18 @@ void Game::Init(HWND hwnd)
 	CreateInputLayout();
 	CreatePS();
 
+	CreateRasterizerState();
+	CreateSamplerState();
+	CreateBlendState();
+
 	CreateSRV();
 	CreateConstantBuffer();
 }
 
 void Game::Update()
 {
-	_transformData.offset.x += 0.0003f;
-	_transformData.offset.y += 0.0003f;
+	//_transformData.offset.x += 0.0003f;
+	//_transformData.offset.y += 0.0003f;
 
 	// TransformData를 넣기
 	D3D11_MAPPED_SUBRESOURCE subResource;
@@ -86,7 +90,8 @@ void Game::Render()
 		);
 
 		// RS
-
+		// 코딩은 불가능하지만 여러 설정이 가능
+		_deviceContext->RSSetState(_rasterizerState.Get());
 
 		// PS
 		_deviceContext->PSSetShader(
@@ -99,9 +104,14 @@ void Game::Render()
 			1,
 			_shaderResourceView.GetAddressOf()
 		);
+		_deviceContext->PSSetSamplers(
+			0, 
+			1, 
+			_samplerState.GetAddressOf()
+		);
 
 		// OM
-
+		_deviceContext->OMSetBlendState(_blendState.Get(), nullptr, 0xFFFFFFFF);
 
 		_deviceContext->DrawIndexed(_indices.size(), 0, 0);
 	}
@@ -212,7 +222,7 @@ void Game::CreateGeometry()
 		// 13
 		// 02
 		_vertices[0].position = Vec3(-0.5f, -0.5f, 0);
-		_vertices[0].uv = Vec2(0.f, 1.f);
+		_vertices[0].uv = Vec2(0.f, 5.f);
 		//_vertices[0].color = Color(1.f, 0.f, 0.f, 1.f);
 
 		_vertices[1].position = Vec3(-0.5f, 0.5f, 0);
@@ -220,11 +230,11 @@ void Game::CreateGeometry()
 		//_vertices[1].color = Color(0.f, 1.f, 0.f, 1.f);
 
 		_vertices[2].position = Vec3(0.5f, -0.5f, 0);
-		_vertices[2].uv = Vec2(1.f, 1.f);
+		_vertices[2].uv = Vec2(5.f, 5.f);
 		//_vertices[2].color = Color(0.f, 0.f, 1.f, 1.f);
 		
 		_vertices[3].position = Vec3(0.5f, 0.5f, 0);
-		_vertices[3].uv = Vec2(1.f, 0.f);
+		_vertices[3].uv = Vec2(5.f, 0.f);
 		//_vertices[3].color = Color(1.f, 1.f, 1.f, 1.f);
 	}
 
@@ -320,6 +330,62 @@ void Game::CreatePS()
 		_pixelShader.GetAddressOf()
 	);
 
+	CHECK(hr);
+}
+
+void Game::CreateRasterizerState()
+{
+	D3D11_RASTERIZER_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.FillMode = D3D11_FILL_SOLID;
+	desc.CullMode = D3D11_CULL_BACK;
+	desc.FrontCounterClockwise = false;
+
+	HRESULT hr = _device->CreateRasterizerState(&desc, _rasterizerState.GetAddressOf());
+	CHECK(hr);
+}
+
+void Game::CreateSamplerState()
+{
+	// 셰이더에서 텍스쳐 uv좌표 색상을 꺼낼 때와 관련
+	// 크기를 벗어났을 때
+	D3D11_SAMPLER_DESC desc;
+	ZeroMemory(&desc, sizeof(desc));
+	desc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+	desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	desc.BorderColor[0] = 1;
+	desc.BorderColor[1] = 0;
+	desc.BorderColor[2] = 0;
+	desc.BorderColor[3] = 1;
+	desc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	desc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
+	desc.MaxAnisotropy = 16;
+	desc.MaxLOD = FLT_MAX;
+	desc.MinLOD = FLT_MIN;
+	desc.MipLODBias = 0.0f;
+
+	HRESULT hr = _device->CreateSamplerState(&desc, _samplerState.GetAddressOf());
+	CHECK(hr);
+}
+
+void Game::CreateBlendState()
+{
+	D3D11_BLEND_DESC desc;
+	ZeroMemory(&desc, sizeof(D3D11_BLEND_DESC));
+	desc.AlphaToCoverageEnable = false;
+	desc.IndependentBlendEnable = false;
+
+	desc.RenderTarget[0].BlendEnable = true;
+	desc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	desc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	HRESULT hr = _device->CreateBlendState(&desc, _blendState.GetAddressOf());
 	CHECK(hr);
 }
 
