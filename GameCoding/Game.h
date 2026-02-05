@@ -46,7 +46,7 @@ private:
 	ComPtr<ID3D11Device> _device = nullptr;	// 어떤 리소스를 만들 때 device를 통해 만듦
 	ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;	// 이미 만들어진 리소스에 명령/행동을 시킴
 	ComPtr<IDXGISwapChain> _swapChain = nullptr;	// DXGI: 그래픽 분야 중 느리게 발전하는 부분(ex. swapchain)을 위해 라이브러리를 분리함
-	
+
 	// RTV
 	ComPtr<ID3D11RenderTargetView> _renderTargetView;
 
@@ -84,5 +84,8 @@ private:
 private:
 	TransformData _transformData;
 	ComPtr<ID3D11Buffer> _constantBuffer;
-};
 
+	Vec3 _localPosition = { 0.f, 0.f, 0.f };
+	Vec3 _localRotation = { 0.f, 0.f, 0.f };
+	Vec3 _localScale = { 1.f, 1.f, 1.f };
+};
