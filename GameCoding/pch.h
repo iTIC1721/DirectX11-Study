@@ -9,6 +9,7 @@
 #include <map>
 #include <unordered_map>
 #include <string>
+#include <memory>
 using namespace std;
 
 // WIN
@@ -35,3 +36,6 @@ using namespace Microsoft::WRL;
 #endif
 
 #define CHECK(p) assert(SUCCEEDED(p))
+
+// Engine
+#include "Graphics.h"
