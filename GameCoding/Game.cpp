@@ -15,6 +15,9 @@ void Game::Init(HWND hwnd)
 
 	_graphics = make_shared<Graphics>(_hwnd);
 	//_graphics = new Graphics(hwnd);
+	_vertexBuffer = make_shared<VertexBuffer>(_graphics->GetDevice());
+	_indexBuffer = make_shared<IndexBuffer>(_graphics->GetDevice());
+	_inputLayout = make_shared<InputLayout>(_graphics->GetDevice());
 
 	CreateGeometry();
 	CreateVS();
@@ -62,7 +65,7 @@ void Game::Render()
 {
 	_graphics->RenderBegin();
 
-	// 삼각형 그리기
+	// 오브젝트 그리기
 	{
 		// IA
 		uint32 stride = sizeof(Vertex);
@@ -73,16 +76,16 @@ void Game::Render()
 		_deviceContext->IASetVertexBuffers(
 			0,
 			1,
-			_vertexBuffer.GetAddressOf(),
+			_vertexBuffer->GetComPtr().GetAddressOf(),
 			&stride,
 			&offset
 		);
 		_deviceContext->IASetIndexBuffer(
-			_indexBuffer.Get(),
+			_indexBuffer->GetComPtr().Get(),
 			DXGI_FORMAT_R32_UINT,
 			0
 		);
-		_deviceContext->IASetInputLayout(_inputLayout.Get());
+		_deviceContext->IASetInputLayout(_inputLayout->GetComPtr().Get());
 		_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		// VS
@@ -154,24 +157,7 @@ void Game::CreateGeometry()
 
 	// Vertex Buffer
 	{
-		D3D11_BUFFER_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
-		desc.Usage = D3D11_USAGE_IMMUTABLE;	// Immutable: GPU에 의해서 읽을수만 있음 (CPU는 접근 불가)
-		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;	// -> Vertex Buffer를 만드는 데에 사용하겠다
-		desc.ByteWidth = (uint32)(sizeof(Vertex) * _vertices.size());
-
-		D3D11_SUBRESOURCE_DATA data;
-		ZeroMemory(&data, sizeof(data));
-		data.pSysMem = _vertices.data();	// 첫 번째 데이터의 메모리상 위치
-
-		// 버퍼 생성
-		HRESULT hr = _graphics->GetDevice()->CreateBuffer(
-			&desc, 
-			&data, 
-			_vertexBuffer.GetAddressOf()
-		);
-
-		CHECK(hr);
+		_vertexBuffer->Create(_vertices);
 	}
 
 	// Index Data
@@ -181,42 +167,18 @@ void Game::CreateGeometry()
 
 	// Index Buffer
 	{
-		D3D11_BUFFER_DESC desc;
-		ZeroMemory(&desc, sizeof(desc));
-		desc.Usage = D3D11_USAGE_IMMUTABLE;	// Immutable: GPU에 의해서 읽을수만 있음 (CPU는 접근 불가)
-		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;	// -> Vertex Buffer를 만드는 데에 사용하겠다
-		desc.ByteWidth = (uint32)(sizeof(uint32) * _indices.size());
-
-		D3D11_SUBRESOURCE_DATA data;
-		ZeroMemory(&data, sizeof(data));
-		data.pSysMem = _indices.data();	// 첫 번째 데이터의 메모리상 위치
-
-		// 버퍼 생성
-		HRESULT hr = _graphics->GetDevice()->CreateBuffer(
-			&desc,
-			&data,
-			_indexBuffer.GetAddressOf()
-		);
-
-		CHECK(hr);
+		_indexBuffer->Create(_indices);
 	}
 }
 
 void Game::CreateInputLayout()
 {
-	D3D11_INPUT_ELEMENT_DESC layout[] = {
+	vector<D3D11_INPUT_ELEMENT_DESC> layout = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
-	const int32 numElement = sizeof(layout) / sizeof(D3D11_INPUT_ELEMENT_DESC);
-	_graphics->GetDevice()->CreateInputLayout(
-		layout,
-		numElement,
-		_vsBlob->GetBufferPointer(),
-		_vsBlob->GetBufferSize(),
-		_inputLayout.GetAddressOf()
-	);
+	_inputLayout->Create(layout, _vsBlob);
 }
 
 void Game::CreateVS()
