@@ -14,10 +14,10 @@ void Game::Init(HWND hwnd)
 	_hwnd = hwnd;
 
 	_graphics = make_shared<Graphics>(_hwnd);
-	//_graphics = new Graphics(hwnd);
 	_vertexBuffer = make_shared<VertexBuffer>(_graphics->GetDevice());
 	_indexBuffer = make_shared<IndexBuffer>(_graphics->GetDevice());
 	_inputLayout = make_shared<InputLayout>(_graphics->GetDevice());
+	_geometry = make_shared<Geometry<VertexTextureData>>();
 
 	CreateGeometry();
 	CreateVS();
@@ -68,7 +68,7 @@ void Game::Render()
 	// 오브젝트 그리기
 	{
 		// IA
-		uint32 stride = sizeof(Vertex);
+		uint32 stride = sizeof(VertexTextureData);
 		uint32 offset = 0;
 
 		auto _deviceContext = _graphics->GetDeviceContext();
@@ -124,7 +124,7 @@ void Game::Render()
 		// OM
 		_deviceContext->OMSetBlendState(_blendState.Get(), nullptr, 0xFFFFFFFF);
 
-		_deviceContext->DrawIndexed(_indices.size(), 0, 0);
+		_deviceContext->DrawIndexed(_geometry->GetIndexCount(), 0, 0);
 	}
 
 	_graphics->RenderEnd();
@@ -133,42 +133,13 @@ void Game::Render()
 void Game::CreateGeometry()
 {
 	// Vertex Data
-	{
-		_vertices.resize(4);
-
-		// 13
-		// 02
-		_vertices[0].position = Vec3(-0.5f, -0.5f, 0);
-		_vertices[0].uv = Vec2(0.f, 1.f);
-		//_vertices[0].color = Color(1.f, 0.f, 0.f, 1.f);
-
-		_vertices[1].position = Vec3(-0.5f, 0.5f, 0);
-		_vertices[1].uv = Vec2(0.f, 0.f);
-		//_vertices[1].color = Color(0.f, 1.f, 0.f, 1.f);
-
-		_vertices[2].position = Vec3(0.5f, -0.5f, 0);
-		_vertices[2].uv = Vec2(1.f, 1.f);
-		//_vertices[2].color = Color(0.f, 0.f, 1.f, 1.f);
-		
-		_vertices[3].position = Vec3(0.5f, 0.5f, 0);
-		_vertices[3].uv = Vec2(1.f, 0.f);
-		//_vertices[3].color = Color(1.f, 1.f, 1.f, 1.f);
-	}
+	GeometryHelper::CreateRectangle(_geometry);
 
 	// Vertex Buffer
-	{
-		_vertexBuffer->Create(_vertices);
-	}
-
-	// Index Data
-	{
-		_indices = { 0, 1, 2, 2, 1, 3 };
-	}
+	_vertexBuffer->Create(_geometry->GetVertices());
 
 	// Index Buffer
-	{
-		_indexBuffer->Create(_indices);
-	}
+	_indexBuffer->Create(_geometry->GetIndices());
 }
 
 void Game::CreateInputLayout()
