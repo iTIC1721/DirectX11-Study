@@ -45,3 +45,6 @@ using namespace Microsoft::WRL;
 #include "Geometry.h"
 #include "VertexData.h"
 #include "GeometryHelper.h"
+#include "Shader.h"
+#include "ConstantBuffer.h"
+#include "Texture.h"
