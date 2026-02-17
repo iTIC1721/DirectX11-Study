@@ -36,6 +36,10 @@ GameObject::GameObject(ComPtr<ID3D11Device> device, ComPtr<ID3D11DeviceContext> 
 
 	_samplerState = make_shared<SamplerState>(device);
 	_samplerState->Create();
+
+	// test
+	_parent->AddChild(_transform);
+	_transform->SetParent(_parent);
 }
 
 GameObject::~GameObject()
@@ -45,17 +49,11 @@ GameObject::~GameObject()
 
 void GameObject::Update()
 {
-	// SRT
-	_localPosition.x += 0.001f;
+	Vec3 pos = _transform->GetPosition();
+	pos.x += 0.001f;
+	_transform->SetPosition(pos);
 
-	Matrix matScale = Matrix::CreateScale(_localScale);
-	Matrix matRotation = Matrix::CreateRotationX(_localRotation.x);
-	matRotation *= Matrix::CreateRotationY(_localRotation.y);
-	matRotation *= Matrix::CreateRotationZ(_localRotation.z);
-	Matrix matTranslation = Matrix::CreateTranslation(_localPosition);
-
-	Matrix matWorld = matScale * matRotation * matTranslation;
-	_transformData.matWorld = matWorld;
+	_transformData.matWorld = _transform->GetWorldMatrix();
 
 	// TransformData¸¦ ³Ö±â
 	_constantBuffer->CopyData(_transformData);
