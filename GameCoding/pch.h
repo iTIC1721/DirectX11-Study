@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
+#include <array>
 using namespace std;
 
 // WIN
