@@ -13,11 +13,15 @@ struct VS_OUTPUT
     //float4 color : COLOR;
 };
 
-cbuffer TransformData : register(b0)
+cbuffer CameraData : register(b0)
 {
-    row_major matrix matWorld;
     row_major matrix matView;
     row_major matrix matProjection;
+}
+
+cbuffer TransformData : register(b1)
+{
+    row_major matrix matWorld;
 }
 
 // Vertex Shader

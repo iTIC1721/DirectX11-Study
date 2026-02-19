@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Game.h"
 #include "Camera.h"
+#include "MeshRenderer.h"
 
 Game::Game()
 {
@@ -21,6 +22,7 @@ void Game::Init(HWND hwnd)
 	_gameObject = make_shared<GameObject>(_graphics->GetDevice(), _graphics->GetDeviceContext());
 	{
 		_gameObject->GetOrAddTransform();
+		_gameObject->AddComponent(make_shared<MeshRenderer>(_graphics->GetDevice(), _graphics->GetDeviceContext()));
 		// ...
 	}
 
@@ -44,7 +46,9 @@ void Game::Render()
 
 	// 오브젝트 그리기
 	{
-		_gameObject->Render(_pipeline);
+		//_gameObject->Render(_pipeline);
+		// TEMP
+		_gameObject->GetMeshRenderer()->Render(_pipeline);
 	}
 
 	_graphics->RenderEnd();
