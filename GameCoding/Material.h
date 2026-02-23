@@ -1,10 +1,10 @@
 #pragma once
 #include "ResourceBase.h"
-
-class Shader : public ResourceBase
+class Material : public ResourceBase
 {
 	using Super = ResourceBase;
 public:
-	Shader();
-	virtual ~Shader();
+	Material();
+	virtual ~Material();
 };
+
