@@ -24,6 +24,14 @@ cbuffer TransformData : register(b1)
     row_major matrix matWorld;
 }
 
+cbuffer AnimationData : register(b2)
+{
+    float2 spriteOffset;
+    float2 spriteSize;
+    float2 textureSize;
+    float useAnimation;
+}
+
 // Vertex Shader
 VS_OUTPUT VS(VS_INPUT input)
 {
@@ -35,7 +43,12 @@ VS_OUTPUT VS(VS_INPUT input)
     
     output.position = position;
     output.uv = input.uv;
-    //output.color = input.color;
+    
+    if (useAnimation == 1.0f)
+    {
+        output.uv *= spriteSize / textureSize;
+        output.uv += spriteOffset / textureSize;
+    }
     
     return output;
 }

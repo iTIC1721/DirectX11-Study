@@ -22,10 +22,21 @@ void ResourceManager::Init()
 
 void ResourceManager::CreateDefaultTexture()
 {
-	shared_ptr<Texture> texture = make_shared<Texture>(_device);
-	texture->SetName(L"miku");
-	texture->Create(L"miku.png");
-	Add(texture->GetName(), texture);
+	// miku
+	{
+		shared_ptr<Texture> texture = make_shared<Texture>(_device);
+		texture->SetName(L"miku");
+		texture->Create(L"miku.png");
+		Add(texture->GetName(), texture);
+	}
+
+	// snake
+	{
+		shared_ptr<Texture> texture = make_shared<Texture>(_device);
+		texture->SetName(L"Snake");
+		texture->Create(L"Snake.bmp");
+		Add(texture->GetName(), texture);
+	}
 }
 
 void ResourceManager::CreateDefaultMesh()
@@ -67,4 +78,17 @@ void ResourceManager::CreateDefaultMaterial()
 
 void ResourceManager::CreateDefaultAnimation()
 {
+	shared_ptr<Animation> animation = make_shared<Animation>();
+	animation->SetName(L"SnakeAnim");
+	animation->SetTexture(Get<Texture>(L"Snake"));
+	animation->SetLoop(true);
+
+	animation->AddKeyframe(Keyframe{ Vec2{0.f, 0.f}, Vec2{100.f, 100.f}, 0.1f });
+	animation->AddKeyframe(Keyframe{ Vec2{100.f, 0.f}, Vec2{100.f, 100.f}, 0.1f });
+	animation->AddKeyframe(Keyframe{ Vec2{200.f, 0.f}, Vec2{100.f, 100.f}, 0.1f });
+	animation->AddKeyframe(Keyframe{ Vec2{300.f, 0.f}, Vec2{100.f, 100.f}, 0.1f });
+
+	Add(animation->GetName(), animation);
+
+	// XML
 }

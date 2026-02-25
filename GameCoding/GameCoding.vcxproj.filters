@@ -212,6 +212,9 @@
     <ClInclude Include="RenderHelper.h">
       <Filter>소스 파일\00. Engine\Manager\Render</Filter>
     </ClInclude>
+    <ClInclude Include="Animator.h">
+      <Filter>소스 파일\00. Engine\Component\Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="GameCoding.rc">
@@ -334,6 +337,9 @@
     </ClCompile>
     <ClCompile Include="RenderHelper.cpp">
       <Filter>소스 파일\00. Engine\Manager\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Animator.cpp">
+      <Filter>소스 파일\00. Engine\Component\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

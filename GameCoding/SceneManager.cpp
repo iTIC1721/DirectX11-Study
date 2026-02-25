@@ -8,6 +8,7 @@
 #include "ResourceManager.h"
 #include "Game.h"
 #include "Mesh.h"
+#include "Animator.h"
 
 SceneManager::SceneManager(shared_ptr<Graphics> graphics)
 	: _graphics(graphics)
@@ -70,10 +71,17 @@ shared_ptr<Scene> SceneManager::LoadTestScene()
 			meshRenderer->SetMesh(mesh);
 
 			auto material = RESOURCES->Get<Material>(L"Default");
-			meshRenderer->SetMaterial(material);
-
-			scene->AddGameObject(gameObject);
+			meshRenderer->SetMaterial(material);	
 		}
+
+		{
+			auto animator = make_shared<Animator>();
+			gameObject->AddComponent(animator);
+			auto anim = RESOURCES->Get<Animation>(L"SnakeAnim");
+			animator->SetAnimation(anim);
+		}
+
+		scene->AddGameObject(gameObject);
 	}
 
 	return scene;
